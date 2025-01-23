@@ -1,0 +1,15 @@
+﻿################################################################################
+# Данный GITIGNORE-файл был автоматически создан Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/CallboardAPI
+/Application/bin/Debug/net8.0
+/Application/obj
+/Common/bin/Debug/net8.0
+/Common/obj
+/Core/bin/Debug/net8.0
+/Core/obj
+/Infrastructure/bin/Debug/net8.0
+/Infrastructure/obj
+/Web/bin/Debug/net8.0
+/Web/obj
