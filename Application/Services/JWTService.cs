@@ -21,7 +21,10 @@ namespace Application.Services
             var handler = new JwtSecurityTokenHandler();
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity([new Claim(ClaimTypes.Name, user.Id.ToString())]),
+                Subject = new ClaimsIdentity([
+                    new Claim(ClaimTypes.Name, user.Id.ToString()),
+                    new Claim(ClaimTypes.Role, user.IsSuperuser ? "admin" : "user"),
+                    ]),
                 Expires = DateTime.UtcNow.AddMinutes(_lifetimeMinutes),
                 SigningCredentials = new SigningCredentials(_secretKey,
                 SecurityAlgorithms.HmacSha256Signature)

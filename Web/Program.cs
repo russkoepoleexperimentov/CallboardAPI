@@ -62,6 +62,7 @@ namespace Web
 
             builder.Services.AddDbContext<ApplicationContext>(
                     options => options
+                    .UseLazyLoadingProxies()
                     .UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
                     builder => builder.MigrationsAssembly("Web")
                 ));
@@ -71,7 +72,15 @@ namespace Web
                 .AddTransient<UserService>()
                 .AddScoped<IValidator<UserRegistrationDto>, UserRegistrationValidator>()
                 .AddScoped<IValidator<UserUpdateDto>, UserUpdateValidator>()
-                .AddAutoMapper(typeof(UserMapper));
+                .AddAutoMapper(typeof(UserMapper))
+                
+                .AddScoped<ICategoryRepository, CategoryRepository>()
+                .AddTransient<CategoryService>()
+                .AddAutoMapper(typeof(CategoryMapper))
+                
+                .AddScoped<ICategoryParameterRepository, CategoryParameterRepository>()
+                .AddTransient<CategoryParameterService>()
+                .AddAutoMapper(typeof(CategoryParameterMapper));
 
             builder.Services.AddSingleton(new JWTService(AuthConfig.GetSymmetricSecurityKey(), AuthConfig.LIFETIME_MINUTES));
 

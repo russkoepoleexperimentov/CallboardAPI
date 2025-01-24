@@ -13,5 +13,6 @@ namespace Core.Entities
         public DateOnly? DateOfBirth { get; set; }
         public Gender Gender { get; set; }
         public string City { get; set; } = null!;
+        public bool IsSuperuser { get; set; } = false;
     }
 }
