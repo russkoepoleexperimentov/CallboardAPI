@@ -80,9 +80,16 @@ namespace Web
                 
                 .AddScoped<ICategoryParameterRepository, CategoryParameterRepository>()
                 .AddTransient<CategoryParameterService>()
-                .AddAutoMapper(typeof(CategoryParameterMapper));
+                .AddAutoMapper(typeof(CategoryParameterMapper))
+                
+                .AddScoped<IImageRepository, ImageRepository>()
+                .AddTransient<ImageService>();
 
-            builder.Services.AddSingleton(new JWTService(AuthConfig.GetSymmetricSecurityKey(), AuthConfig.LIFETIME_MINUTES));
+
+            builder.Services
+                .AddSingleton(new JWTService(AuthConfig.GetSymmetricSecurityKey(), AuthConfig.LIFETIME_MINUTES));
+
+            ImageService.DirectoryPath = Environment.ProcessPath + "UserContent";
 
             var app = builder.Build();
 

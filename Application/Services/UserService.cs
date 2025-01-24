@@ -10,23 +10,26 @@ namespace Application.Services
 {
     public class UserService
     {
-        public readonly IUserRepository _userRepository;
-        public readonly IValidator<UserRegistrationDto> _registrationValidator;
-        public readonly IValidator<UserUpdateDto> _updateValidator;
-        public readonly IMapper _userMapper;
+        private readonly IUserRepository _userRepository;
+        private readonly IValidator<UserRegistrationDto> _registrationValidator;
+        private readonly IValidator<UserUpdateDto> _updateValidator;
+        private readonly IMapper _userMapper;
         private readonly JWTService _jwtService;
+        private readonly ImageService _imageService;
 
         public UserService(IUserRepository userRepository,
             IMapper mapper,
             IValidator<UserRegistrationDto> registrationValidator,
             IValidator<UserUpdateDto> updateValidator,
-            JWTService jwtService)
+            JWTService jwtService,
+            ImageService imageService)
         {
             _userRepository = userRepository;
             _registrationValidator = registrationValidator;
             _updateValidator = updateValidator;
             _userMapper = mapper;
             _jwtService = jwtService;
+            _imageService = imageService;
         }
 
         public async Task<TokenDto> Register(UserRegistrationDto dto)
@@ -97,6 +100,24 @@ namespace Application.Services
         {
             var users = await _userRepository.GetAllAsync();
             return users.Select(_userMapper.Map<User, UserDto>).ToList();
+        }
+
+        public async Task<string?> UploadAvatar(Guid? id, ImageUploadDto dto)
+        {
+            if (id == null)
+                throw new BadRequestException("Id was null");
+
+            var user = await _userRepository.GetByIdAsync(id.Value);
+
+            if (user == null)
+                throw new NotFoundException("User not found");
+
+            var image = await _imageService.UploadImage(user, dto);
+
+            user.AvatarId = image.Id;
+            await _userRepository.UpdateAsync(user);
+
+            return image.Path;
         }
     }
 }

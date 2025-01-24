@@ -12,7 +12,12 @@ namespace Web.Controllers
     {
         private readonly UserService _userService;
 
-        public UserController(UserService userService) { _userService = userService; }
+        public UserController(
+            UserService userService
+            ) 
+        {
+            _userService = userService; 
+        }
 
         [HttpPost("register")]
         [ProducesResponseType<TokenDto>(StatusCodes.Status200OK)]
@@ -36,6 +41,15 @@ namespace Web.Controllers
         {
             var id = HttpContext.GetUserId();
             return Ok(await _userService.GetProfile(id));
+        }
+
+        [Authorize]
+        [HttpPost("profile/avatar")]
+        [ProducesResponseType<bool>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> UploadAvatar([FromForm] ImageUploadDto dto)
+        {
+            var id = HttpContext.GetUserId();
+            return Ok(await _userService.UploadAvatar(id, dto));
         }
 
         [Authorize]
