@@ -25,10 +25,7 @@ namespace Application.Services
 
         public async Task<CategoryParameterDto> GetById(Guid id)
         {
-            var parameter = await _categoryParameterRepository.GetByIdAsync(id);
-
-            if (parameter == null)
-                throw new NotFoundException("Category parameter not found");
+            var parameter = await GetParameterAsync(id);
 
             return _mapper.Map<CategoryParameter, CategoryParameterDto>(parameter);
         }
@@ -71,10 +68,7 @@ namespace Application.Services
 
         public async Task<CategoryParameterDto?> Update(Guid id, CategoryParameterUpdateDto dto)
         {
-            var parameter = await _categoryParameterRepository.GetByIdAsync(id);
-
-            if (parameter == null)
-                throw new NotFoundException("Parameter not found");
+            var parameter = await GetParameterAsync(id);
 
             parameter.Name = dto.Name;
             await _categoryParameterRepository.UpdateAsync(parameter);
@@ -83,14 +77,26 @@ namespace Application.Services
 
         public async Task<CategoryParameterDto?> Delete(Guid id)
         {
+            var parameter = await GetParameterAsync(id);
+
+            var dto = _mapper.Map<CategoryParameter, CategoryParameterDto>(parameter);
+            await _categoryParameterRepository.DeleteAsync(id);
+            return dto;
+        }
+
+        internal async Task<List<CategoryParameter>> GetParametersForCategoryAsync(Category category)
+        {
+            return await _categoryParameterRepository.GetForCategoryAsync(category.Id);
+        }
+
+        internal async Task<CategoryParameter> GetParameterAsync(Guid id)
+        {
             var parameter = await _categoryParameterRepository.GetByIdAsync(id);
 
             if (parameter == null)
                 throw new NotFoundException("Parameter not found");
 
-            var dto = _mapper.Map<CategoryParameter, CategoryParameterDto>(parameter);
-            await _categoryParameterRepository.DeleteAsync(id);
-            return dto;
+            return parameter;
         }
     }
 }

@@ -19,8 +19,7 @@ namespace Application.Mappers
                 .ForMember(dest => dest.ParentId,
                 opt => opt.MapFrom((Func<Category, CategoryDto, Guid?>)
                 ((s, d) => s.Parent != null ? s.Parent.Id : null)))
-                .ForMember(dest => dest.NestedCount, opt => opt.Ignore())
-                .ForMember(dest => dest.Parameters, opt => opt.Ignore());
+                .ForMember(dest => dest.NestedCount, opt => opt.Ignore());
 
             CreateMap<CategoryCreateDto, Category>()
                 .ForMember(dest => dest.Parent, opt => opt.Ignore());

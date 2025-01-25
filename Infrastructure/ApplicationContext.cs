@@ -13,6 +13,8 @@ namespace Infrastructure
         public DbSet<Category> Categories { get; set; }
         public DbSet<CategoryParameter> CategoryParameters { get; set; }
         public DbSet<Image> Images { get; set; }
+        public DbSet<Advertisment> Advertisments { get; set; }
+        public DbSet<AdvertismentParameterValue> AdvertismentParameterValues { get; set; }
 
         // https://www.entityframeworktutorial.net/faq/set-created-and-modified-date-in-efcore.aspx
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

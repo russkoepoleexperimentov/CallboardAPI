@@ -47,28 +47,12 @@ namespace Application.Services
 
         public async Task<CategoryFullDto> GetById(Guid id)
         {
-            var category = await _categoryRepository.GetByIdAsync(id);
-
-            if (category == null)
-                throw new NotFoundException("Category not found");
-
-            var dto = FullMapFrom(category);
-
-            dto.Parameters = await _parameterService.GetForCategory(id);
-
-            return dto;
+            return await FullMapFrom(await GetCategoryAsync(id));
         }
 
         public async Task<List<CategoryDto>> GetNested(Guid id)
         {
-            var category = await _categoryRepository.GetByIdAsync(id);
-
-            if (category == null)
-                throw new NotFoundException("Category not found");
-
-            var nested = await _categoryRepository.GetNested(category);
-
-            return nested.Select(MapFrom).ToList();
+            return (await GetNestedAsync(id, false)).Select(MapFrom).ToList();
         }
 
         public async Task<List<CategoryDto>> GetRoots()
@@ -78,7 +62,7 @@ namespace Application.Services
             return roots.Select(MapFrom).ToList();
         }
 
-        private CategoryDto MapFrom(Category category)
+        internal CategoryDto MapFrom(Category category)
         {
             var dto = _categoryMapper.Map<Category, CategoryDto>(category);
             var task = _categoryRepository.NestedCount(category);
@@ -87,13 +71,33 @@ namespace Application.Services
             return dto;
         }
 
-        private CategoryFullDto FullMapFrom(Category category)
+        internal async Task<CategoryFullDto> FullMapFrom(Category category)
         {
             var dto = _categoryMapper.Map<Category, CategoryFullDto>(category);
             var task = _categoryRepository.NestedCount(category);
             task.Wait();
             dto.NestedCount = task.Result;
+            dto.Parameters = await _parameterService.GetForCategory(category.Id);
             return dto;
+        }
+
+        internal async Task<Category> GetCategoryAsync(Guid id)
+        {
+            var category = await _categoryRepository.GetByIdAsync(id);
+
+            if (category == null)
+                throw new NotFoundException("Category not found");
+
+            return category;
+        }
+
+        internal async Task<List<Category>> GetNestedAsync(Guid id, bool inclusive = false)
+        {
+            var category = await GetCategoryAsync(id);
+            var nested = await _categoryRepository.GetNested(category);
+            if(inclusive)
+                nested.Add(category);
+            return nested;
         }
     }
 }

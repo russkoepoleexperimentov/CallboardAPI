@@ -3,6 +3,7 @@ using System;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Web.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20250125071909_Advertisments2")]
+    partial class Advertisments2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -64,48 +67,6 @@ namespace Web.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("Advertisments");
-                });
-
-            modelBuilder.Entity("Core.Entities.AdvertismentParameterValue", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("AdvertismentId")
-                        .HasColumnType("uuid");
-
-                    b.Property<bool?>("BooleanValue")
-                        .HasColumnType("boolean");
-
-                    b.Property<Guid>("CategoryParameterId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<int?>("EnumValue")
-                        .HasColumnType("integer");
-
-                    b.Property<float?>("FloatValue")
-                        .HasColumnType("real");
-
-                    b.Property<int?>("IntegerValue")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("StringValue")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AdvertismentId");
-
-                    b.HasIndex("CategoryParameterId");
-
-                    b.ToTable("AdvertismentParameterValues");
                 });
 
             modelBuilder.Entity("Core.Entities.Category", b =>
@@ -263,25 +224,6 @@ namespace Web.Migrations
                     b.Navigation("Author");
 
                     b.Navigation("Category");
-                });
-
-            modelBuilder.Entity("Core.Entities.AdvertismentParameterValue", b =>
-                {
-                    b.HasOne("Core.Entities.Advertisment", "Advertisment")
-                        .WithMany()
-                        .HasForeignKey("AdvertismentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Core.Entities.CategoryParameter", "CategoryParameter")
-                        .WithMany()
-                        .HasForeignKey("CategoryParameterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Advertisment");
-
-                    b.Navigation("CategoryParameter");
                 });
 
             modelBuilder.Entity("Core.Entities.Category", b =>

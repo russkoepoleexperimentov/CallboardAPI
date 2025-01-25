@@ -19,7 +19,7 @@ namespace Web.Controllers
         }
 
         [HttpGet("{id}")]
-        [ProducesResponseType<CategoryDto>(StatusCodes.Status200OK)]
+        [ProducesResponseType<CategoryFullDto>(StatusCodes.Status200OK)]
         public async Task<ActionResult> GetById(Guid id)
         {
             return Ok(await _categoryService.GetById(id));

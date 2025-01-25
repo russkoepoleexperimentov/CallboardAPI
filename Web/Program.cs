@@ -83,7 +83,15 @@ namespace Web
                 .AddAutoMapper(typeof(CategoryParameterMapper))
                 
                 .AddScoped<IImageRepository, ImageRepository>()
-                .AddTransient<ImageService>();
+                .AddTransient<ImageService>()
+                
+                .AddScoped<IAdvertismentRepository, AdvertismentRepository>()
+                .AddTransient<AdvertismentService>()
+                .AddAutoMapper(typeof(AdvertismentMapper))
+                
+                .AddScoped<IAdvertismentParameterValueRepository, AdvertismentParameterValueRepository>()
+                .AddTransient<AdvertismentParameterValueService>()
+                .AddAutoMapper(typeof(AdvertismentParameterValueMapper));
 
 
             builder.Services

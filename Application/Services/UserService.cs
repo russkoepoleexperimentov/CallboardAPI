@@ -67,10 +67,7 @@ namespace Application.Services
             if (id == null)
                 throw new BadRequestException("Id was null");
 
-            var user = await _userRepository.GetByIdAsync(id.Value);
-
-            if (user == null)
-                throw new NotFoundException("User not found");
+            var user = await GetUser(id.Value);
 
             var dto = _userMapper.Map<User, UserDto>(user);
 
@@ -82,10 +79,7 @@ namespace Application.Services
             if (id == null)
                 throw new BadRequestException("Id was null");
 
-            var user = await _userRepository.GetByIdAsync(id.Value);
-
-            if (user == null)
-                throw new NotFoundException("User not found");
+            var user = await GetUser(id.Value);
 
             await _updateValidator.ValidateAndThrowAsync(dto);
 
@@ -107,10 +101,7 @@ namespace Application.Services
             if (id == null)
                 throw new BadRequestException("Id was null");
 
-            var user = await _userRepository.GetByIdAsync(id.Value);
-
-            if (user == null)
-                throw new NotFoundException("User not found");
+            var user = await GetUser(id.Value);
 
             var image = await _imageService.UploadImage(user, dto);
 
@@ -118,6 +109,16 @@ namespace Application.Services
             await _userRepository.UpdateAsync(user);
 
             return image.Path;
+        }
+
+        internal async Task<User> GetUser(Guid id)
+        {
+            var user = await _userRepository.GetByIdAsync(id);
+
+            if (user == null)
+                throw new NotFoundException("User not found");
+
+            return user;
         }
     }
 }
