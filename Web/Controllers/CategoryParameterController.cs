@@ -20,7 +20,7 @@ namespace Web.Controllers
         [ProducesResponseType<CategoryParameterDto>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetParameter(Guid id)
         {
-            return Ok(await _categoryParameterService.GetById(id));
+            return Ok(await _categoryParameterService.GetMappedAsync(id));
         }
 
         [HttpPut("{id}")]
@@ -28,7 +28,7 @@ namespace Web.Controllers
         [ProducesResponseType<CategoryParameterDto>(StatusCodes.Status200OK)]
         public async Task<IActionResult> UpdateParameter(Guid id, CategoryParameterUpdateDto dto)
         {
-            return Ok(await _categoryParameterService.Update(id, dto));
+            return Ok(await _categoryParameterService.UpdateAndGetMappedAsync(id, dto));
         }
 
         [HttpDelete("{id}")]
@@ -36,7 +36,7 @@ namespace Web.Controllers
         [ProducesResponseType<CategoryParameterDto>(StatusCodes.Status200OK)]
         public async Task<IActionResult> DeleteParameter(Guid id)
         {
-            return Ok(await _categoryParameterService.Delete(id));
+            return Ok(await _categoryParameterService.DeleteAndGetMappedAsync(id));
         }
     }
 }

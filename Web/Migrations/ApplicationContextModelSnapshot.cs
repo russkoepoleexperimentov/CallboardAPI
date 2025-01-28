@@ -63,7 +63,7 @@ namespace Web.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Advertisments");
+                    b.ToTable("Advertisments", (string)null);
                 });
 
             modelBuilder.Entity("Core.Entities.AdvertismentParameterValue", b =>
@@ -105,7 +105,7 @@ namespace Web.Migrations
 
                     b.HasIndex("CategoryParameterId");
 
-                    b.ToTable("AdvertismentParameterValues");
+                    b.ToTable("AdvertismentParameterValues", (string)null);
                 });
 
             modelBuilder.Entity("Core.Entities.Category", b =>
@@ -131,7 +131,7 @@ namespace Web.Migrations
 
                     b.HasIndex("ParentId");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("Core.Entities.CategoryParameter", b =>
@@ -163,7 +163,7 @@ namespace Web.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("CategoryParameters");
+                    b.ToTable("CategoryParameters", (string)null);
                 });
 
             modelBuilder.Entity("Core.Entities.Image", b =>
@@ -193,7 +193,7 @@ namespace Web.Migrations
 
                     b.HasIndex("UploaderEmail");
 
-                    b.ToTable("Images");
+                    b.ToTable("Images", (string)null);
                 });
 
             modelBuilder.Entity("Core.Entities.User", b =>
@@ -243,7 +243,7 @@ namespace Web.Migrations
 
                     b.HasKey("Email");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("Core.Entities.Advertisment", b =>

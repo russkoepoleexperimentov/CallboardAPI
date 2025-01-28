@@ -32,7 +32,7 @@ namespace Application.Services
             _imageService = imageService;
         }
 
-        public async Task<TokenDto> Register(UserRegistrationDto dto)
+        public async Task<TokenDto> RegisterAndGetTokenAsync(UserRegistrationDto dto)
         {
             await _registrationValidator.ValidateAndThrowAsync(dto);
 
@@ -49,7 +49,7 @@ namespace Application.Services
             return new() { Token = _jwtService.GenerateToken(user) };
         }
 
-        public async Task<TokenDto> Authenticate(UserAuthenticationDto dto)
+        public async Task<TokenDto> AuthenticateAndGetTokenAsync(UserAuthenticationDto dto)
         {
             var user = await _userRepository.GetByEmailAsync(dto.Email);
 
@@ -62,24 +62,24 @@ namespace Application.Services
             return new() { Token = _jwtService.GenerateToken(user) };
         }
 
-        public async Task<UserDto> GetProfile(Guid? id)
+        public async Task<UserDto> GetMappedAsync(Guid? id)
         {
             if (id == null)
                 throw new BadRequestException("Id was null");
 
-            var user = await GetUser(id.Value);
+            var user = await GetFromDbAsync(id.Value);
 
             var dto = _userMapper.Map<User, UserDto>(user);
 
             return dto;
         }
 
-        public async Task<UserDto?> UpdateProfile(Guid? id, UserUpdateDto dto)
+        public async Task<UserDto?> UpdateAndGetMappedAsync(Guid? id, UserUpdateDto dto)
         {
             if (id == null)
                 throw new BadRequestException("Id was null");
 
-            var user = await GetUser(id.Value);
+            var user = await GetFromDbAsync(id.Value);
 
             await _updateValidator.ValidateAndThrowAsync(dto);
 
@@ -90,20 +90,20 @@ namespace Application.Services
             return _userMapper.Map<User, UserDto>(user);
         }
 
-        public async Task<List<UserDto>> GetAllProfiles()
+        public async Task<List<UserDto>> GetAllMappedAsync()
         {
             var users = await _userRepository.GetAllAsync();
             return users.Select(_userMapper.Map<User, UserDto>).ToList();
         }
 
-        public async Task<string?> UploadAvatar(Guid? id, ImageUploadDto dto)
+        public async Task<string?> UploadAvatarAsync(Guid? id, ImageUploadDto dto)
         {
             if (id == null)
                 throw new BadRequestException("Id was null");
 
-            var user = await GetUser(id.Value);
+            var user = await GetFromDbAsync(id.Value);
 
-            var image = await _imageService.UploadImage(user, dto);
+            var image = await _imageService.UploadAndGetAsync(user, dto);
 
             user.AvatarId = image.Id;
             await _userRepository.UpdateAsync(user);
@@ -111,7 +111,7 @@ namespace Application.Services
             return image.Path;
         }
 
-        internal async Task<User> GetUser(Guid id)
+        internal async Task<User> GetFromDbAsync(Guid id)
         {
             var user = await _userRepository.GetByIdAsync(id);
 

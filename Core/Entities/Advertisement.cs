@@ -1,6 +1,6 @@
 ﻿namespace Core.Entities
 {
-    public class Advertisment : BaseEntity
+    public class Advertisement : BaseEntity
     {
         public virtual Category Category { get; set; } = null!;
         public string Title { get; set; } = null!;

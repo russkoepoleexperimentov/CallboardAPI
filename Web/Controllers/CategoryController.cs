@@ -22,21 +22,21 @@ namespace Web.Controllers
         [ProducesResponseType<CategoryFullDto>(StatusCodes.Status200OK)]
         public async Task<ActionResult> GetById(Guid id)
         {
-            return Ok(await _categoryService.GetById(id));
+            return Ok(await _categoryService.GetMappedAsync(id));
         }
 
         [HttpGet("{id}/nested")]
         [ProducesResponseType<List<CategoryDto>>(StatusCodes.Status200OK)]
         public async Task<ActionResult> GetNested(Guid id)
         {
-            return Ok(await _categoryService.GetNested(id));
+            return Ok(await _categoryService.GetMappedNestedListAsync(id));
         }
 
         [HttpGet("roots")]
         [ProducesResponseType<List<CategoryDto>>(StatusCodes.Status200OK)]
         public async Task<ActionResult> GetRoots()
         {
-            return Ok(await _categoryService.GetRoots());
+            return Ok(await _categoryService.GetMappedRootsAsync());
         }
 
         [HttpPost]
@@ -44,7 +44,7 @@ namespace Web.Controllers
         [ProducesResponseType<CategoryDto>(StatusCodes.Status200OK)]
         public async Task<ActionResult> Create(CategoryCreateDto dto)
         {
-            return Ok(await _categoryService.Create(dto));
+            return Ok(await _categoryService.CreateAndGetMappedAsync(dto));
         }
 
         [HttpPost("{id}/addParameter")]
@@ -52,7 +52,7 @@ namespace Web.Controllers
         [ProducesResponseType<CategoryParameterDto>(StatusCodes.Status200OK)]
         public async Task<ActionResult> CreateParameter(Guid id, CategoryParameterCreateDto dto)
         {
-            return Ok(await _categoryParameterService.Create(id, dto));
+            return Ok(await _categoryParameterService.CreateAndGetMappedAsync(id, dto));
         }
     }
 }

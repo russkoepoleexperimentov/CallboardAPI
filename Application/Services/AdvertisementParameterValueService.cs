@@ -9,14 +9,14 @@ using System.Text.Json;
 
 namespace Application.Services
 {
-    public class AdvertismentParameterValueService
+    public class AdvertisementParameterValueService
     {
-        private readonly IAdvertismentParameterValueRepository _repository;
+        private readonly IAdvertisementParameterValueRepository _repository;
         private readonly IMapper _mapper;
         private readonly CategoryParameterService _categoryParameterService;
 
-        public AdvertismentParameterValueService(
-            IAdvertismentParameterValueRepository repository,
+        public AdvertisementParameterValueService(
+            IAdvertisementParameterValueRepository repository,
             IMapper mapper,
             CategoryParameterService categoryParameterService
             )
@@ -26,26 +26,26 @@ namespace Application.Services
             _categoryParameterService = categoryParameterService;
         }
 
-        public async Task<List<AdvertismentParameterValueDto>> GetForAdvertisment(Advertisment advertisment)
+        public async Task<List<AdvertisementParameterValueDto>> GetAllForAdvertisementAsync(Advertisement advertisement)
         {
-            return (await _repository.GetForAdvertisment(advertisment))
-                .Select(_mapper.Map<AdvertismentParameterValue, AdvertismentParameterValueDto>)
+            return (await _repository.GetForAdvertisment(advertisement))
+                .Select(_mapper.Map<AdvertisementParameterValue, AdvertisementParameterValueDto>)
                 .ToList();
         }
 
-        internal async Task<List<AdvertismentParameterValue>> CreateList(List<AdvertismentParameterValueCreateDto> list)
+        internal async Task<List<AdvertisementParameterValue>> CreateAndGetListAsync(List<AdvertisementParameterValueCreateDto> list)
         {
-            List<AdvertismentParameterValue> result = new();
+            List<AdvertisementParameterValue> result = new();
             foreach (var item in list)
-                result.Add(await Create(item));
+                result.Add(await CreateAndGetAsync(item));
             return result;
         }
 
-        internal async Task<AdvertismentParameterValue> Create(AdvertismentParameterValueCreateDto dto)
+        internal async Task<AdvertisementParameterValue> CreateAndGetAsync(AdvertisementParameterValueCreateDto dto)
         {
-            var element = (JsonElement)dto.Value;
-            var needType = (await _categoryParameterService.GetParameterAsync(dto.ParameterId)).DataType;
-            var result = _mapper.Map<AdvertismentParameterValueCreateDto, AdvertismentParameterValue>(dto);
+            var element = dto.Value;
+            var needType = (await _categoryParameterService.GetParameterFromDbAsync(dto.ParameterId)).DataType;
+            var result = _mapper.Map<AdvertisementParameterValueCreateDto, AdvertisementParameterValue>(dto);
 
             try
             {
@@ -75,12 +75,12 @@ namespace Application.Services
                 throw new BadRequestException($"Parameter {dto.ParameterId} value type mismatch. {ex.Message}");
             }
 
-            result.CategoryParameter = await _categoryParameterService.GetParameterAsync(dto.ParameterId);
+            result.CategoryParameter = await _categoryParameterService.GetParameterFromDbAsync(dto.ParameterId);
 
             return result;
         }
 
-        internal async Task AddListAsync(Advertisment advertisment, List<AdvertismentParameterValue> parameterValues)
+        internal async Task AddListToDbAsync(Advertisement advertisment, List<AdvertisementParameterValue> parameterValues)
         {
             foreach (var parameterValue in parameterValues)
             {

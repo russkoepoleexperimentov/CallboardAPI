@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace Application.DTOs
 {
-    public class AdvertismentParameterValueDto
+    public class AdvertisementParameterValueDto
     {
         public Guid Id { get; set; }
         public Guid ParameterId {  get; set; }
@@ -12,7 +12,7 @@ namespace Application.DTOs
         public ParameterDataType DataType { get; set; }
         public object Value { get; set; }
     }
-    public class AdvertismentParameterValueCreateDto
+    public class AdvertisementParameterValueCreateDto
     {
         public Guid ParameterId { get; set; }
         public JsonElement Value { get; set; }

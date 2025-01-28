@@ -19,7 +19,7 @@ namespace Web.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> ShowImage(Guid id)
         {
-            var dto = await _imageService.GetImage(id);
+            var dto = await _imageService.GetAsync(id);
             return File(dto.Data, dto.ContentType);
         }
     }

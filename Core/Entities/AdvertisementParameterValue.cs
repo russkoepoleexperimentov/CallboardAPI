@@ -1,8 +1,8 @@
 ﻿namespace Core.Entities
 {
-    public class AdvertismentParameterValue : BaseEntity
+    public class AdvertisementParameterValue : BaseEntity
     {
-        public virtual Advertisment Advertisment { get; set; } = null!;
+        public virtual Advertisement Advertisment { get; set; } = null!;
         public virtual CategoryParameter CategoryParameter { get; set; } = null!;
         public int? IntegerValue { get; set; }
         public float? FloatValue { get; set; }

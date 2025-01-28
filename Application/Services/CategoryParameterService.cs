@@ -23,14 +23,14 @@ namespace Application.Services
             _mapper = mapper;
         }
 
-        public async Task<CategoryParameterDto> GetById(Guid id)
+        public async Task<CategoryParameterDto> GetMappedAsync(Guid id)
         {
-            var parameter = await GetParameterAsync(id);
+            var parameter = await GetParameterFromDbAsync(id);
 
             return _mapper.Map<CategoryParameter, CategoryParameterDto>(parameter);
         }
 
-        public async Task<List<CategoryParameterDto>> GetForCategory(Guid categoryId)
+        public async Task<List<CategoryParameterDto>> GetMappedListForCategoryAsync(Guid categoryId)
         {
             var category = await _categoryRepository.GetByIdAsync(categoryId);
 
@@ -42,7 +42,7 @@ namespace Application.Services
             return parameters.Select(_mapper.Map<CategoryParameter, CategoryParameterDto>).ToList();
         }
 
-        public async Task<CategoryParameterDto> Create(Guid categoryId, CategoryParameterCreateDto dto)
+        public async Task<CategoryParameterDto> CreateAndGetMappedAsync(Guid categoryId, CategoryParameterCreateDto dto)
         {
             var category = await _categoryRepository.GetByIdAsync(categoryId);
 
@@ -66,30 +66,30 @@ namespace Application.Services
             return _mapper.Map<CategoryParameter, CategoryParameterDto>(parameter);
         }
 
-        public async Task<CategoryParameterDto?> Update(Guid id, CategoryParameterUpdateDto dto)
+        public async Task<CategoryParameterDto?> UpdateAndGetMappedAsync(Guid id, CategoryParameterUpdateDto dto)
         {
-            var parameter = await GetParameterAsync(id);
+            var parameter = await GetParameterFromDbAsync(id);
 
             parameter.Name = dto.Name;
             await _categoryParameterRepository.UpdateAsync(parameter);
             return _mapper.Map<CategoryParameter, CategoryParameterDto>(parameter);
         }
 
-        public async Task<CategoryParameterDto?> Delete(Guid id)
+        public async Task<CategoryParameterDto?> DeleteAndGetMappedAsync(Guid id)
         {
-            var parameter = await GetParameterAsync(id);
+            var parameter = await GetParameterFromDbAsync(id);
 
             var dto = _mapper.Map<CategoryParameter, CategoryParameterDto>(parameter);
             await _categoryParameterRepository.DeleteAsync(id);
             return dto;
         }
 
-        internal async Task<List<CategoryParameter>> GetParametersForCategoryAsync(Category category)
+        internal async Task<List<CategoryParameter>> GetParametersForCategoryFromDbAsync(Category category)
         {
             return await _categoryParameterRepository.GetForCategoryAsync(category.Id);
         }
 
-        internal async Task<CategoryParameter> GetParameterAsync(Guid id)
+        internal async Task<CategoryParameter> GetParameterFromDbAsync(Guid id)
         {
             var parameter = await _categoryParameterRepository.GetByIdAsync(id);
 

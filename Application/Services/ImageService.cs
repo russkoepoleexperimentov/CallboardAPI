@@ -16,7 +16,7 @@ namespace Application.Services
             _imageRepository = imageRepository;
         }
 
-        public async Task<ImageDto> GetImage(Guid id)
+        public async Task<ImageDto> GetAsync(Guid id)
         {
             var image = await _imageRepository.GetByIdAsync(id);
 
@@ -31,7 +31,7 @@ namespace Application.Services
             };
         }
 
-        public async Task<Image> UploadImage(User uploader, ImageUploadDto dto)
+        public async Task<Image> UploadAndGetAsync(User uploader, ImageUploadDto dto)
         {
             var path = Path.Combine(DirectoryPath);
 

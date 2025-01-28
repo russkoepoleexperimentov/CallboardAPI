@@ -85,13 +85,13 @@ namespace Web
                 .AddScoped<IImageRepository, ImageRepository>()
                 .AddTransient<ImageService>()
                 
-                .AddScoped<IAdvertismentRepository, AdvertismentRepository>()
-                .AddTransient<AdvertismentService>()
-                .AddAutoMapper(typeof(AdvertismentMapper))
+                .AddScoped<IAdvertisementRepository, AdvertisementRepository>()
+                .AddTransient<AdvertisementService>()
+                .AddAutoMapper(typeof(AdvertisementMapper))
                 
-                .AddScoped<IAdvertismentParameterValueRepository, AdvertismentParameterValueRepository>()
-                .AddTransient<AdvertismentParameterValueService>()
-                .AddAutoMapper(typeof(AdvertismentParameterValueMapper));
+                .AddScoped<IAdvertisementParameterValueRepository, AdvertisementParameterValueRepository>()
+                .AddTransient<AdvertisementParameterValueService>()
+                .AddAutoMapper(typeof(AdvertisementParameterValueMapper));
 
 
             builder.Services

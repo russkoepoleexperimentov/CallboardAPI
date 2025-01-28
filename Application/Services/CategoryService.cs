@@ -23,7 +23,7 @@ namespace Application.Services
             _categoryMapper = categoryMapper;
         }
 
-        public async Task<CategoryDto> Create(CategoryCreateDto dto)
+        public async Task<CategoryDto> CreateAndGetMappedAsync(CategoryCreateDto dto)
         {
             var category = _categoryMapper.Map<CategoryCreateDto, Category>(dto);
 
@@ -34,7 +34,7 @@ namespace Application.Services
                 if (parent == null)
                     throw new NotFoundException("Parent category not found");
 
-                if ((await _parameterService.GetForCategory(parent.Id)).Count > 0)
+                if ((await _parameterService.GetMappedListForCategoryAsync(parent.Id)).Count > 0)
                     throw new BadRequestException("Unnable to create nested for parent with parameters.");
 
                 category.Parent = parent;
@@ -45,24 +45,24 @@ namespace Application.Services
             return _categoryMapper.Map<Category, CategoryDto>(category);
         }
 
-        public async Task<CategoryFullDto> GetById(Guid id)
+        public async Task<CategoryFullDto> GetMappedAsync(Guid id)
         {
-            return await FullMapFrom(await GetCategoryAsync(id));
+            return await GetFullMappedFromAsync(await GetFromDbAsync(id));
         }
 
-        public async Task<List<CategoryDto>> GetNested(Guid id)
+        public async Task<List<CategoryDto>> GetMappedNestedListAsync(Guid id)
         {
-            return (await GetNestedAsync(id, false)).Select(MapFrom).ToList();
+            return (await GetNestedFromDbAsync(id, false)).Select(GetMappedFrom).ToList();
         }
 
-        public async Task<List<CategoryDto>> GetRoots()
+        public async Task<List<CategoryDto>> GetMappedRootsAsync()
         {
             var roots = await _categoryRepository.GetRoots();
 
-            return roots.Select(MapFrom).ToList();
+            return roots.Select(GetMappedFrom).ToList();
         }
 
-        internal CategoryDto MapFrom(Category category)
+        internal CategoryDto GetMappedFrom(Category category)
         {
             var dto = _categoryMapper.Map<Category, CategoryDto>(category);
             var task = _categoryRepository.NestedCount(category);
@@ -71,17 +71,17 @@ namespace Application.Services
             return dto;
         }
 
-        internal async Task<CategoryFullDto> FullMapFrom(Category category)
+        internal async Task<CategoryFullDto> GetFullMappedFromAsync(Category category)
         {
             var dto = _categoryMapper.Map<Category, CategoryFullDto>(category);
             var task = _categoryRepository.NestedCount(category);
             task.Wait();
             dto.NestedCount = task.Result;
-            dto.Parameters = await _parameterService.GetForCategory(category.Id);
+            dto.Parameters = await _parameterService.GetMappedListForCategoryAsync(category.Id);
             return dto;
         }
 
-        internal async Task<Category> GetCategoryAsync(Guid id)
+        internal async Task<Category> GetFromDbAsync(Guid id)
         {
             var category = await _categoryRepository.GetByIdAsync(id);
 
@@ -91,9 +91,9 @@ namespace Application.Services
             return category;
         }
 
-        internal async Task<List<Category>> GetNestedAsync(Guid id, bool inclusive = false)
+        internal async Task<List<Category>> GetNestedFromDbAsync(Guid id, bool inclusive = false)
         {
-            var category = await GetCategoryAsync(id);
+            var category = await GetFromDbAsync(id);
             var nested = await _categoryRepository.GetNested(category);
             if(inclusive)
                 nested.Add(category);

@@ -23,7 +23,7 @@ namespace Web.Controllers
         [ProducesResponseType<TokenDto>(StatusCodes.Status200OK)]
         public async Task<IActionResult> Register(UserRegistrationDto dto)
         {
-            return Ok(await _userService.Register(dto));
+            return Ok(await _userService.RegisterAndGetTokenAsync(dto));
         }
 
 
@@ -31,7 +31,7 @@ namespace Web.Controllers
         [ProducesResponseType<TokenDto>(StatusCodes.Status200OK)]
         public async Task<IActionResult> Login(UserAuthenticationDto dto)
         {
-            return Ok(await _userService.Authenticate(dto));
+            return Ok(await _userService.AuthenticateAndGetTokenAsync(dto));
         }
 
         [Authorize]
@@ -40,7 +40,7 @@ namespace Web.Controllers
         public async Task<IActionResult> GetProfile()
         {
             var id = HttpContext.GetUserId();
-            return Ok(await _userService.GetProfile(id));
+            return Ok(await _userService.GetMappedAsync(id));
         }
 
         [Authorize]
@@ -49,7 +49,7 @@ namespace Web.Controllers
         public async Task<IActionResult> UploadAvatar([FromForm] ImageUploadDto dto)
         {
             var id = HttpContext.GetUserId();
-            return Ok(await _userService.UploadAvatar(id, dto));
+            return Ok(await _userService.UploadAvatarAsync(id, dto));
         }
 
         [Authorize]
@@ -58,21 +58,21 @@ namespace Web.Controllers
         public async Task<IActionResult> UpdateProfile(UserUpdateDto dto)
         {
             var id = HttpContext.GetUserId();
-            return Ok(await _userService.UpdateProfile(id, dto));
+            return Ok(await _userService.UpdateAndGetMappedAsync(id, dto));
         }
 
         [HttpGet]
         [ProducesResponseType<UserDto>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllUsers()
         {
-            return Ok(await _userService.GetAllProfiles());
+            return Ok(await _userService.GetAllMappedAsync());
         }
 
         [HttpGet("{id}")]
         [ProducesResponseType<UserDto>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetUserById(Guid id)
         {
-            return Ok(await _userService.GetProfile(id));
+            return Ok(await _userService.GetMappedAsync(id));
         }
     }
 }

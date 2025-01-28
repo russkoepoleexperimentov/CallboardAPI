@@ -6,17 +6,17 @@ using Core.Entities;
 
 namespace Application.Mappers
 {
-    public class AdvertismentParameterValueMapper : Profile
+    public class AdvertisementParameterValueMapper : Profile
     {
-        public AdvertismentParameterValueMapper() 
+        public AdvertisementParameterValueMapper() 
         {
-            CreateMap<AdvertismentParameterValue, AdvertismentParameterValueDto>()
+            CreateMap<AdvertisementParameterValue, AdvertisementParameterValueDto>()
                 .ForMember(x => x.ParameterId, o => o.MapFrom(x => x.CategoryParameter.Id))
                 .ForMember(x => x.Name, o => o.MapFrom(x => x.CategoryParameter.Name))
                 .ForMember(x => x.DataType, o => o.MapFrom(x => x.CategoryParameter.DataType))
                 .ForMember(x => x.Value, o => o.MapFrom(x => GetValue(x)));
 
-            CreateMap<AdvertismentParameterValueCreateDto, AdvertismentParameterValue>()
+            CreateMap<AdvertisementParameterValueCreateDto, AdvertisementParameterValue>()
                 .ForMember(x => x.Advertisment, o => o.Ignore())
                 .ForMember(x => x.CategoryParameter, o => o.Ignore())
                 .ForMember(x => x.EnumValue, o => o.Ignore())
@@ -26,7 +26,7 @@ namespace Application.Mappers
                 .ForMember(x => x.BooleanValue, o => o.Ignore());
         }
 
-        private object? GetValue(AdvertismentParameterValue source)
+        private object? GetValue(AdvertisementParameterValue source)
         {
             var dtype = source.CategoryParameter.DataType;
 
