@@ -1,9 +1,11 @@
 ﻿using Application.DTOs;
+using Application.Validators;
 using AutoMapper;
 using Common.Enums;
 using Common.Exceptions;
 using Core.Entities;
 using Core.Repositiories;
+using FluentValidation;
 
 namespace Application.Services
 {
@@ -16,13 +18,18 @@ namespace Application.Services
         private readonly IAdvertisementRepository _advertisementRepository;
         private readonly IMapper _mapper;
 
+        private readonly IValidator<AdvertisementCreateDto> _createValidator;
+        private readonly IValidator<AdvertisementUpdateDto> _updateValidator;
+
         public AdvertisementService(
             IAdvertisementRepository advertisementRepository,
             UserService userService,
             CategoryService categoryService,
             CategoryParameterService categoryParameterService,
             AdvertisementParameterValueService advertismentParameterValueService,
-            IMapper mapper
+            IMapper mapper,
+            IValidator<AdvertisementCreateDto> createValidator,
+            IValidator<AdvertisementUpdateDto> updateValidator
             )
         {
             _advertisementRepository = advertisementRepository;
@@ -31,6 +38,8 @@ namespace Application.Services
             _categoryParameterService = categoryParameterService;
             _advertismentParameterValueService = advertismentParameterValueService;
             _mapper = mapper;
+            _createValidator = createValidator;
+            _updateValidator = updateValidator;
         }
 
         public async Task<List<AdvertisementDto>> SearchMappedAsync
@@ -65,6 +74,8 @@ namespace Application.Services
             AdvertisementCreateDto dto
             )
         {
+            await _createValidator.ValidateAndThrowAsync(dto);
+
             var user = await _userService.GetFromDbAsync(userId);
             var category = await _categoryService.GetFromDbAsync(dto.CategoryId);
             var parameters = await _categoryParameterService.GetParametersForCategoryFromDbAsync(category);
@@ -92,6 +103,43 @@ namespace Application.Services
             await _advertismentParameterValueService.AddListToDbAsync(advertisement, parameterValues);
 
             return await GetMappedAsync(advertisement);
+        }
+
+        public async Task<AdvertisementDto> DeleteAndGetMappedAsync(
+            Guid id, 
+            Guid userId
+            )
+        {
+            var user = await _userService.GetFromDbAsync(userId);
+            var advertisment = await GetFromDbAsync(id);
+
+            if(!user.IsSuperuser && advertisment.Author != user) 
+                throw new BadRequestException("You can't do this");
+
+            await _advertisementRepository.DeleteAsync(id);
+
+            return await GetMappedAsync(advertisment);
+        }
+
+        public async Task<AdvertisementDto> UpdateAndGetMappedAsync(
+            Guid id, 
+            Guid userId,
+            AdvertisementUpdateDto dto
+            )
+        {
+            await _updateValidator.ValidateAndThrowAsync(dto);
+
+            var user = await _userService.GetFromDbAsync(userId);
+            var advertisment = await GetFromDbAsync(id);
+
+            if(!user.IsSuperuser && advertisment.Author != user) 
+                throw new BadRequestException("You can't do this");
+
+            _mapper.Map(dto, advertisment);
+
+            await _advertisementRepository.UpdateAsync(advertisment);
+
+            return await GetMappedAsync(advertisment);
         }
 
         internal async Task<Advertisement> GetFromDbAsync(Guid id)

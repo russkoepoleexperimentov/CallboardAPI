@@ -20,15 +20,6 @@ namespace Web.Controllers
             _advertisementService = advertisementService;
         }
 
-        [Authorize]
-        [HttpPost]
-        [ProducesResponseType<AdvertisementDto>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> Create(AdvertisementCreateDto dto)
-        {
-            var userId = HttpContext.GetUserId()!;
-            return Ok(await _advertisementService.CreateAndGetMappedAsync(userId.Value, dto));
-        }
-
         [HttpGet("search")]
         [ProducesResponseType<List<AdvertisementDto>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> Search(
@@ -46,6 +37,33 @@ namespace Web.Controllers
         public async Task<IActionResult> GetById(Guid id)
         {
             return Ok(await _advertisementService.GetMappedAsync(id));
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ProducesResponseType<AdvertisementDto>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> Create(AdvertisementCreateDto dto)
+        {
+            var userId = HttpContext.GetUserId()!;
+            return Ok(await _advertisementService.CreateAndGetMappedAsync(userId.Value, dto));
+        }
+
+        [Authorize]
+        [HttpPatch("{id}")]
+        [ProducesResponseType<AdvertisementDto>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> Update(Guid id, AdvertisementUpdateDto dto)
+        {
+            var userId = HttpContext.GetUserId()!;
+            return Ok(await _advertisementService.UpdateAndGetMappedAsync(id, userId.Value, dto));
+        }
+
+        [Authorize]
+        [HttpDelete("{id}")]
+        [ProducesResponseType<AdvertisementDto>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var userId = HttpContext.GetUserId()!;
+            return Ok(await _advertisementService.DeleteAndGetMappedAsync(id, userId.Value));
         }
     }
 }

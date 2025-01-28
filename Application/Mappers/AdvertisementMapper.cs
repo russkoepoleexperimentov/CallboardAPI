@@ -7,11 +7,14 @@ namespace Application.Mappers
 {
     public class AdvertisementMapper : Profile
     {
-        public AdvertisementMapper() {
-            CreateMap<AdvertisementCreateDto, Advertisement>()
-                .ForMember(dest => dest.OldCost, opt => opt.Ignore());
+        public AdvertisementMapper() 
+        {
+            CreateMap<AdvertisementCreateDto, Advertisement>();
 
             CreateMap<Advertisement, AdvertisementDto>();
+
+            CreateMap<AdvertisementUpdateDto, Advertisement>()
+                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
         }
     }
 }
