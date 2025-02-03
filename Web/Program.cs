@@ -93,7 +93,11 @@ namespace Web
                 
                 .AddScoped<IAdvertisementParameterValueRepository, AdvertisementParameterValueRepository>()
                 .AddTransient<AdvertisementParameterValueService>()
-                .AddAutoMapper(typeof(AdvertisementParameterValueMapper));
+                .AddAutoMapper(typeof(AdvertisementParameterValueMapper))
+                
+                .AddScoped<ICommentRepository, CommentRepository>()
+                .AddTransient<CommentService>()
+                .AddAutoMapper(typeof(CommentMapper));
 
 
             builder.Services

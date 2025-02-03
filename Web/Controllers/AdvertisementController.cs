@@ -12,12 +12,15 @@ namespace Web.Controllers
     {
 
         private readonly AdvertisementService _advertisementService;
+        private readonly CommentService _commentService;
 
         public AdvertisementController(
-            AdvertisementService advertisementService
+            AdvertisementService advertisementService,
+            CommentService commentService
             ) 
         {
             _advertisementService = advertisementService;
+            _commentService = commentService;
         }
 
         [HttpGet("search")]
@@ -37,6 +40,22 @@ namespace Web.Controllers
         public async Task<IActionResult> GetById(Guid id)
         {
             return Ok(await _advertisementService.GetMappedAsync(id));
+        }
+
+        [HttpGet("{id}/comment")]
+        [ProducesResponseType<List<CommentDto>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetRootComments(Guid id)
+        {
+            return Ok(await _commentService.GetMappedRootsAsync(id));
+        }
+
+        [Authorize]
+        [HttpPost("{id}/comment")]
+        [ProducesResponseType<List<CommentDto>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> CreateComment(CommentCreateUpdateDto dto, Guid id)
+        {
+            var userId = HttpContext.GetUserId()!;
+            return Ok(await _commentService.CreateRootAndGetMappedAsync(dto, userId.Value, id));
         }
 
         [Authorize]
