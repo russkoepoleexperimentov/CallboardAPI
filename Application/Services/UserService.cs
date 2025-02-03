@@ -56,7 +56,7 @@ namespace Application.Services
             if (user == null)
                 throw new InvalidAuthenticationDataException($"Invalid authentication data.");
 
-            if(PasswordUtils.Compare(dto.Password, user.PasswordHash))
+            if(!PasswordUtils.Compare(dto.Password, user.PasswordHash))
                 throw new InvalidAuthenticationDataException($"Invalid authentication data.");
 
             return new() { Token = _jwtService.GenerateToken(user) };

@@ -107,12 +107,18 @@ namespace Web
 
             var app = builder.Build();
 
-            using (var scope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            using (var scope = app.Services.CreateScope())
             {
-                scope.ServiceProvider.GetService<ApplicationContext>()!.Database.Migrate();
+                var services = scope.ServiceProvider;
+
+                var context = services.GetRequiredService<ApplicationContext>();
+                if (context.Database.GetPendingMigrations().Any())
+                {
+                    context.Database.Migrate();
+                }
             }
 
-            if (app.Environment.IsDevelopment())
+            //if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
