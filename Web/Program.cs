@@ -90,6 +90,8 @@ namespace Web
                 .AddScoped<IValidator<AdvertisementCreateDto>, AdvertisementCreateValidator>()
                 .AddScoped<IValidator<AdvertisementUpdateDto>, AdvertisementUpdateValidator>()
                 .AddAutoMapper(typeof(AdvertisementMapper))
+
+                .AddScoped<IAdvertisementImageRepository, AdvertisementImageRepository>()
                 
                 .AddScoped<IAdvertisementParameterValueRepository, AdvertisementParameterValueRepository>()
                 .AddTransient<AdvertisementParameterValueService>()

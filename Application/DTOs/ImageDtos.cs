@@ -12,4 +12,11 @@ namespace Application.DTOs
         public byte[] Data { get; set; } = null!;
         public string ContentType { get; set; } = null!;
     }
+
+    public class AdvertisementImageDto
+    {
+        public Guid Id { get; set; }
+        public Guid ImageId { get; set; }
+        public Guid AdvertisementId { get; set; }
+    }
 }

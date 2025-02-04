@@ -45,7 +45,7 @@ namespace Web.Controllers
 
         [Authorize]
         [HttpPost("profile/avatar")]
-        [ProducesResponseType<bool>(StatusCodes.Status200OK)]
+        [ProducesResponseType<Guid>(StatusCodes.Status200OK)]
         public async Task<IActionResult> UploadAvatar([FromForm] ImageUploadDto dto)
         {
             var id = HttpContext.GetUserId();

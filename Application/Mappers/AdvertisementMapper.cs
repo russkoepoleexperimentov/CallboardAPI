@@ -15,6 +15,10 @@ namespace Application.Mappers
 
             CreateMap<AdvertisementUpdateDto, Advertisement>()
                 .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+
+            CreateMap<AdvertisementImage, AdvertisementImageDto>()
+                .ForMember(x => x.AdvertisementId, opt => opt.MapFrom(x => x.Advertisement.Id))
+                .ForMember(x => x.ImageId, opt => opt.MapFrom(x => x.Image.Id));
         }
     }
 }

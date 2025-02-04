@@ -11,6 +11,7 @@ namespace Application.DTOs
         public CategoryFullDto Category { get; set; } = null!;
         public UserDto Author { get; set; } = null!;
         public List<AdvertisementParameterValueDto> Parameters { get; set; } = null!;
+        public List<AdvertisementImageDto> Images { get; set; } = null!;
     }
 
     public class AdvertisementCreateDto

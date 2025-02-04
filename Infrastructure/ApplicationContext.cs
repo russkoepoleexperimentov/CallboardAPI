@@ -16,6 +16,7 @@ namespace Infrastructure
         public DbSet<Advertisement> Advertisments { get; set; }
         public DbSet<AdvertisementParameterValue> AdvertismentParameterValues { get; set; }
         public DbSet<Comment> Comments { get; set; }
+        public DbSet<AdvertisementImage> AdvertisementImages { get; set; }
 
         // https://www.entityframeworktutorial.net/faq/set-created-and-modified-date-in-efcore.aspx
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

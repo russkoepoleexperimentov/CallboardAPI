@@ -17,6 +17,8 @@ namespace Application.Services
         private readonly AdvertisementParameterValueService _advertismentParameterValueService;
         private readonly IAdvertisementRepository _advertisementRepository;
         private readonly IMapper _mapper;
+        private readonly IAdvertisementImageRepository _advertisementImageRepository;
+        private readonly ImageService _imageService;
 
         private readonly IValidator<AdvertisementCreateDto> _createValidator;
         private readonly IValidator<AdvertisementUpdateDto> _updateValidator;
@@ -28,6 +30,8 @@ namespace Application.Services
             CategoryParameterService categoryParameterService,
             AdvertisementParameterValueService advertismentParameterValueService,
             IMapper mapper,
+            IAdvertisementImageRepository advertisementImageRepository,
+            ImageService imageService,
             IValidator<AdvertisementCreateDto> createValidator,
             IValidator<AdvertisementUpdateDto> updateValidator
             )
@@ -38,6 +42,8 @@ namespace Application.Services
             _categoryParameterService = categoryParameterService;
             _advertismentParameterValueService = advertismentParameterValueService;
             _mapper = mapper;
+            _advertisementImageRepository = advertisementImageRepository;
+            _imageService = imageService;
             _createValidator = createValidator;
             _updateValidator = updateValidator;
         }
@@ -62,6 +68,53 @@ namespace Application.Services
                 dtos.Add(await GetMappedAsync(item));
 
             return dtos;
+        }
+
+        public async Task<AdvertisementImageDto> AddImageAsync(
+            Guid advertisementId,
+            Guid userId,
+            ImageUploadDto dto
+            )
+        {
+            var advertisement = await GetFromDbAsync(advertisementId);
+            var user = await _userService.GetFromDbAsync(userId);
+
+            if (advertisement.Author != user && user.IsSuperuser == false)
+                throw new BadRequestException("Not allowed");
+
+            var image = await _imageService.UploadAndGetAsync(user, dto);
+            var advertisementImage = new AdvertisementImage();
+            advertisementImage.Advertisement = advertisement;
+            advertisementImage.Image = image;
+
+            await _advertisementImageRepository.AddAsync(advertisementImage);
+
+            return _mapper.Map<AdvertisementImage, AdvertisementImageDto>(advertisementImage);
+        }
+
+        public async Task<AdvertisementImageDto> RemoveImageAsync(
+            Guid advertisementId,
+            Guid userId,
+            Guid advertisementImageId
+            )
+        {
+            var advertisement = await GetFromDbAsync(advertisementId);
+            var advertisementImage = await _advertisementImageRepository.GetByIdAsync(advertisementImageId);
+
+            if (advertisementImage == null)
+                throw new NotFoundException("AdvertisementImage not found");
+
+            var user = await _userService.GetFromDbAsync(userId);
+
+            if (advertisement.Author != user && user.IsSuperuser == false)
+                throw new BadRequestException("Not allowed");
+
+            if(advertisementImage.Advertisement != advertisement)
+                throw new BadRequestException("That image is not part of this advertisement");
+
+            await _advertisementImageRepository.DeleteAsync(advertisementImage.Id);
+
+            return _mapper.Map<AdvertisementImage, AdvertisementImageDto>(advertisementImage);
         }
 
         public async Task<AdvertisementDto> GetMappedAsync(Guid id)
@@ -157,6 +210,8 @@ namespace Application.Services
             var result = _mapper.Map<Advertisement, AdvertisementDto>(advertisment);
             result.Category = await _categoryService.GetFullMappedFromAsync(advertisment.Category);
             result.Parameters = await _advertismentParameterValueService.GetAllForAdvertisementAsync(advertisment);
+            result.Images = (await _advertisementImageRepository.GetForAdvertisement(advertisment))
+                .Select(_mapper.Map<AdvertisementImage, AdvertisementImageDto>).ToList();
             return result;
         }
     }

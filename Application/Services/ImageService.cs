@@ -7,7 +7,7 @@ namespace Application.Services
 {
     public class ImageService
     {
-        public static string DirectoryPath = "";
+        public static string DirectoryPath = "uploaded";
 
         private readonly IImageRepository _imageRepository; 
 
@@ -33,7 +33,7 @@ namespace Application.Services
 
         public async Task<Image> UploadAndGetAsync(User uploader, ImageUploadDto dto)
         {
-            var path = Path.Combine(DirectoryPath);
+            var path = "/app/images";
 
             if(!Directory.Exists(path)) 
                 Directory.CreateDirectory(path);

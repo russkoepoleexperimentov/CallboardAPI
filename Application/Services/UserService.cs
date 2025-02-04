@@ -96,7 +96,7 @@ namespace Application.Services
             return users.Select(_userMapper.Map<User, UserDto>).ToList();
         }
 
-        public async Task<string?> UploadAvatarAsync(Guid? id, ImageUploadDto dto)
+        public async Task<Guid> UploadAvatarAsync(Guid? id, ImageUploadDto dto)
         {
             if (id == null)
                 throw new BadRequestException("Id was null");
@@ -108,7 +108,7 @@ namespace Application.Services
             user.AvatarId = image.Id;
             await _userRepository.UpdateAsync(user);
 
-            return image.Path;
+            return image.Id;
         }
 
         internal async Task<User> GetFromDbAsync(Guid id)

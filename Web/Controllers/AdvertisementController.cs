@@ -42,6 +42,24 @@ namespace Web.Controllers
             return Ok(await _advertisementService.GetMappedAsync(id));
         }
 
+        [Authorize]
+        [HttpPost("{id}/image")]
+        [ProducesResponseType<AdvertisementImageDto>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> AddImage(Guid id, ImageUploadDto dto)
+        {
+            var userId = HttpContext.GetUserId()!;
+            return Ok(await _advertisementService.AddImageAsync(id, userId.Value, dto));
+        }
+
+        [Authorize]
+        [HttpDelete("{id}/image/{imageId}")]
+        [ProducesResponseType<AdvertisementImageDto>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> RemoveImage(Guid id, Guid imageId)
+        {
+            var userId = HttpContext.GetUserId()!;
+            return Ok(await _advertisementService.RemoveImageAsync(id, userId.Value, imageId));
+        }
+
         [HttpGet("{id}/comment")]
         [ProducesResponseType<List<CommentDto>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetRootComments(Guid id)
