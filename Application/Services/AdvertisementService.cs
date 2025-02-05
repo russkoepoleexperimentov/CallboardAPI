@@ -88,8 +88,17 @@ namespace Application.Services
                     throw new BadRequestException("Criterias can only be used with category without children");
             }
 
-            var result = await _advertisementRepository.Search(dto.Query, categoriesIds, dto.Sorting, 
-                dto.ParameterEqualsCriteria, dto.ParameterRangeCriteria.ToDictionary(x => x.Key, x => (x.Value.Min, x.Value.Max)), dto.Skip, dto.Take);
+            var result = await _advertisementRepository.Search(
+                dto.Query, 
+                categoriesIds, 
+                dto.Sorting, 
+                dto.ParameterEqualsCriteria, 
+                dto.ParameterRangeCriteria.ToDictionary(x => x.Key, x => (x.Value.Min, x.Value.Max)), 
+                dto.CostRange?.Min ?? 0, 
+                dto.CostRange?.Max ?? int.MaxValue,
+                dto.OnlyWithImages,
+                dto.Skip, 
+                dto.Take);
             List<AdvertisementDto> dtos = new();
 
             foreach (var item in result) 
@@ -236,7 +245,7 @@ namespace Application.Services
         private async Task<AdvertisementDto> GetMappedAsync(Advertisement advertisment)
         {
             var result = _mapper.Map<Advertisement, AdvertisementDto>(advertisment);
-            result.Category = await _categoryService.GetFullMappedFromAsync(advertisment.Category);
+            result.Category = _categoryService.GetMappedFrom(advertisment.Category);
             result.Parameters = await _advertismentParameterValueService.GetAllForAdvertisementAsync(advertisment);
             result.Images = (await _advertisementImageRepository.GetForAdvertisement(advertisment))
                 .Select(_mapper.Map<AdvertisementImage, AdvertisementImageDto>).ToList();

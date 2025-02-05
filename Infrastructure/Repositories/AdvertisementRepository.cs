@@ -23,6 +23,9 @@ namespace Infrastructure.Repositories
             AdvertisementSorting sorting = AdvertisementSorting.DateAsc, 
             Dictionary<Guid, List<JsonElement>> parameterEqualsCriteria = null!, 
             Dictionary<Guid, (JsonElement Min, JsonElement Max)> parameterRangeCriteria = null!,
+            int costMin = 0,
+            int costMax = int.MaxValue,
+            bool onlyWithImages = false,
             int skip = 0, 
             int take = 5
             )
@@ -34,6 +37,11 @@ namespace Infrastructure.Repositories
 
             if(categories != null && categories.Count > 0)
                 response = response.Where(x => categories.Contains(x.Category.Id));
+
+            response = response.Where(x => x.Cost <= costMax && x.Cost >= costMin);
+
+            if(onlyWithImages)
+                response = response.Where(x => _context.AdvertisementImages.Any(i => i.Advertisement == x));
 
             if (parameterEqualsCriteria.Any())
             {

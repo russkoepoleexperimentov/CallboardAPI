@@ -8,9 +8,9 @@ namespace Application.DTOs
     {
         public Guid Id { get; set; }
         public Guid ParameterId {  get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public ParameterDataType DataType { get; set; }
-        public object Value { get; set; }
+        public object Value { get; set; } = null!;
     }
     public class AdvertisementParameterValueCreateDto
     {
