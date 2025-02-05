@@ -3,19 +3,26 @@ using Common.Enums;
 using Core.Entities;
 using Core.Repositiories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace Infrastructure.Repositories
 {
     public class AdvertisementRepository : GenericRepository<Advertisement>, IAdvertisementRepository
     {
-        public AdvertisementRepository(ApplicationContext context) : base(context)
+        private readonly ILogger<AdvertisementRepository> _logger;
+
+        public AdvertisementRepository(ApplicationContext context, ILogger<AdvertisementRepository> logger) : base(context)
         {
+            _logger = logger;
         }
 
         public async Task<List<Advertisement>> Search(
             string? query = null, 
             List<Guid>? categories = null,
-            AdvertisementSorting sorting = AdvertisementSorting.DateAsc,
+            AdvertisementSorting sorting = AdvertisementSorting.DateAsc, 
+            Dictionary<Guid, List<JsonElement>> parameterEqualsCriteria = null!, 
+            Dictionary<Guid, (JsonElement Min, JsonElement Max)> parameterRangeCriteria = null!,
             int skip = 0, 
             int take = 5
             )
@@ -27,6 +34,52 @@ namespace Infrastructure.Repositories
 
             if(categories != null && categories.Count > 0)
                 response = response.Where(x => categories.Contains(x.Category.Id));
+
+            if (parameterEqualsCriteria.Any())
+            {
+                foreach (var (paramId, values) in parameterEqualsCriteria)
+                {
+                    var enumIntValues = values.Where(x => x.ValueKind == JsonValueKind.Number).Select(x => x.GetInt32());
+                    var floatValues = values.Where(x => x.ValueKind == JsonValueKind.Number).Select(x => x.GetSingle());
+                    var stringValues = values.Where(x => x.ValueKind == JsonValueKind.String).Select(x => x.GetString());
+                    var boolValues = values.Where(x => x.ValueKind == JsonValueKind.True 
+                    || x.ValueKind == JsonValueKind.False).Select(x => x.GetBoolean());
+
+                    response = response.Where(
+                        ad => _context.AdvertismentParameterValues.Any(p => 
+                        p.Advertisment == ad &&
+                        p.CategoryParameter.Id == paramId && (
+                            p.CategoryParameter.DataType == ParameterDataType.Integer && enumIntValues.Any(x => x == p.IntegerValue!) ||
+                            p.CategoryParameter.DataType == ParameterDataType.Float && floatValues.Any(x => x == p.FloatValue!) ||
+                            p.CategoryParameter.DataType == ParameterDataType.String && stringValues.Any(x => x == p.StringValue!) ||
+                            p.CategoryParameter.DataType == ParameterDataType.Enum && enumIntValues.Any(x => x == p.EnumValue!) ||
+                            p.CategoryParameter.DataType == ParameterDataType.Boolean && boolValues.Any(x => x == p.BooleanValue!)
+                            )
+                        )
+                    );
+                }
+            }
+
+            if (parameterRangeCriteria.Any())
+            {
+                foreach (var (paramId, range) in parameterRangeCriteria)
+                {
+                    var rangeMin = range.Min.ValueKind == JsonValueKind.Number ? range.Min.GetSingle() : float.MinValue;
+                    var rangeMax = range.Max.ValueKind == JsonValueKind.Number ? range.Max.GetSingle() : float.MaxValue;
+
+                    _logger.LogInformation($"Using range [{rangeMin}, {rangeMax}] on {paramId}");
+
+                    response = response.Where(
+                        ad => _context.AdvertismentParameterValues.Any(p =>
+                        p.Advertisment == ad &&
+                        p.CategoryParameter.Id == paramId && (
+                            p.CategoryParameter.DataType == ParameterDataType.Integer && p.IntegerValue >= rangeMin && p.IntegerValue <= rangeMax ||
+                            p.CategoryParameter.DataType == ParameterDataType.Float && p.FloatValue >= rangeMin && p.IntegerValue <= rangeMax
+                        )
+                        )
+                    );
+                }
+            }
 
             switch (sorting)
             {

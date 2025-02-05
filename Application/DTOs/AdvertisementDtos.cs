@@ -1,4 +1,7 @@
 ﻿
+using Common.Enums;
+using System.Text.Json;
+
 namespace Application.DTOs
 {
     public class AdvertisementDto
@@ -12,6 +15,22 @@ namespace Application.DTOs
         public UserDto Author { get; set; } = null!;
         public List<AdvertisementParameterValueDto> Parameters { get; set; } = null!;
         public List<AdvertisementImageDto> Images { get; set; } = null!;
+    }
+    public class AdvertisementSearchDto
+    {
+        public string? Query { get; set; } = null;
+        public Guid? CategoryId { get; set; } = null; 
+        public Dictionary<Guid, List<JsonElement>> ParameterEqualsCriteria { get; set; } = new();
+        public Dictionary<Guid, SearchRangeCriteria> ParameterRangeCriteria { get; set; } = new();
+        public AdvertisementSorting Sorting { get; set; } = AdvertisementSorting.DateAsc;
+        public int Skip { get; set; } = 0;
+        public int Take { get; set; } = 5;
+    }
+
+    public class SearchRangeCriteria
+    {
+        public JsonElement Min { get; set; }
+        public JsonElement Max { get; set; }
     }
 
     public class AdvertisementCreateDto

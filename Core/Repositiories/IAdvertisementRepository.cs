@@ -1,5 +1,6 @@
 ﻿using Common.Enums;
 using Core.Entities;
+using System.Text.Json;
 
 namespace Core.Repositiories
 {
@@ -9,6 +10,8 @@ namespace Core.Repositiories
             string? query = null,
             List<Guid>? categories = null,
             AdvertisementSorting sorting = AdvertisementSorting.DateAsc,
+            Dictionary<Guid, List<JsonElement>> parameterEqualsCriteria = null!,
+            Dictionary<Guid, (JsonElement Min, JsonElement Max)> parameterRangeCriteria = null!,
             int skip = 0,
             int take = 5
             );

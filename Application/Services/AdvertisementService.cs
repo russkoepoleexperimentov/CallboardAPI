@@ -6,6 +6,7 @@ using Common.Exceptions;
 using Core.Entities;
 using Core.Repositiories;
 using FluentValidation;
+using System.Collections.Generic;
 
 namespace Application.Services
 {
@@ -48,20 +49,47 @@ namespace Application.Services
             _updateValidator = updateValidator;
         }
 
-        public async Task<List<AdvertisementDto>> SearchMappedAsync
-            (
-            string? query = null,
-            Guid? categoryId = null,
-            AdvertisementSorting sorting = AdvertisementSorting.DateAsc,
-            int skip = 0,
-            int take = 5
-            )
+        public async Task<List<AdvertisementDto>> SearchMappedAsync(AdvertisementSearchDto dto)
         {
-            var categories = categoryId != null ?
-                (await _categoryService.GetNestedFromDbAsync(categoryId.Value)).Select(x => x.Id).ToList() :
+            var categoriesIds = dto.CategoryId != null ?
+                (await _categoryService.GetNestedFromDbAsync(dto.CategoryId.Value, true)).Select(x => x.Id).ToList() :
                 null;
 
-            var result = await _advertisementRepository.Search(query, categories, sorting, skip, take);
+            if(categoriesIds != null && categoriesIds.Count == 1)
+            {
+                if (dto.ParameterEqualsCriteria.Any() || dto.ParameterRangeCriteria.Any())
+                {
+                    var parametersWithRangeIds = dto.ParameterRangeCriteria.Select(x => x.Key).ToList();
+                    var parametersWithEqualtyIds = dto.ParameterEqualsCriteria.Select(x => x.Key).ToList();
+                    var parametersIds = new List<Guid>();
+                    parametersIds.AddRange(parametersWithRangeIds);
+                    parametersIds.AddRange(parametersWithEqualtyIds);
+                    var category = await _categoryService.GetFromDbAsync(categoriesIds.First());
+
+                    foreach (var parameterId in parametersIds)
+                    {
+                        var parameter = await _categoryParameterService.GetParameterFromDbAsync(parameterId);
+
+                        if (parameter.Category != category)
+                            throw new BadRequestException($"Parameter {parameterId} is not a part of the category {category.Id}");
+                        
+                        if(parametersWithRangeIds.Contains(parameterId))
+                        {
+                            if(parameter.DataType != ParameterDataType.Integer &&
+                                parameter.DataType != ParameterDataType.Float)
+                                throw new BadRequestException($"Parameter {parameterId} with type {parameter.DataType} can't be used in range criteria");
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (dto.ParameterEqualsCriteria.Any() || dto.ParameterRangeCriteria.Any())
+                    throw new BadRequestException("Criterias can only be used with category without children");
+            }
+
+            var result = await _advertisementRepository.Search(dto.Query, categoriesIds, dto.Sorting, 
+                dto.ParameterEqualsCriteria, dto.ParameterRangeCriteria.ToDictionary(x => x.Key, x => (x.Value.Min, x.Value.Max)), dto.Skip, dto.Take);
             List<AdvertisementDto> dtos = new();
 
             foreach (var item in result) 

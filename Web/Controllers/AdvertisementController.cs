@@ -23,16 +23,11 @@ namespace Web.Controllers
             _commentService = commentService;
         }
 
-        [HttpGet("search")]
+        [HttpPost("search")]  // using POST because of advanced filtering with dictionaries
         [ProducesResponseType<List<AdvertisementDto>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> Search(
-            string? query = null,
-            Guid? categoryId = null,
-            AdvertisementSorting sorting = AdvertisementSorting.DateDesc,
-            int skip = 0,
-            int take = 5)
+        public async Task<IActionResult> Search(AdvertisementSearchDto dto)
         {
-            return Ok(await _advertisementService.SearchMappedAsync(query, categoryId, sorting, skip, take));
+            return Ok(await _advertisementService.SearchMappedAsync(dto));
         }
 
         [HttpGet("{id}")]
